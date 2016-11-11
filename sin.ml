@@ -15,7 +15,7 @@ let rec n_pi n =
 
 let pi = 3.1415926536 in
 let half_pi = 1.5707963265 in
-let rec my_cos x =
+let rec cos x =
   let x = if x<0. then -.x else x in
   let quo = floor(x/.pi) in
   let x = x-.(n_pi quo) in
@@ -40,7 +40,7 @@ let rec my_cos x =
   in
   sgn*.calc_cos x 1.0 max in
 
-let rec my_sin x =
+let rec sin x =
   let sgn = if x<0. then -1. else 1. in
   let x = if x<0. then -.x else x in
   let quo = floor(x/.pi) in
@@ -65,7 +65,7 @@ let rec my_sin x =
   in
   sgn*.calc_sin x x max in
 
-let rec my_atan x =
+let rec atan x =
   let sgn = x<0. in
   let x = if sgn then -.x else x in
   let flag = 1.<x in
@@ -88,9 +88,4 @@ let rec my_atan x =
   in
   let mid =if flag then half_pi -. calc_atan a0 z a0 max else calc_atan a0 z a0 max in
   if sgn then -.mid else mid in
-
-(*
-let err_sin x = (sin x -. (my_sin x))/.(sin x) in
-let err_cos x = (cos x -. (my_cos x))/.(cos x) in
-let err_atan x = (atan x -. (my_atan x))/.(atan x) in *)
-print_float my_sin 1.0
+print_float sin 1.0
