@@ -1,27 +1,24 @@
 let rec myftoi x =
-  if x<0. then
-    -myftoi (-.x)
-  else
-    let large = 2147483648. in
-    if x>=large then 0
-    else
-      let rec distance a b = if a<b then b-.a else a-.b in
-      let rec calc_floor x k =
-        if x<1. then k 0 0.
+  let rec calc_floor x =
+        if x<1. then (0,0.)
         else
-          let rec k_ z zf = if distance x (2.*.zf) < 1. then k (z+z) (2.*.zf)
-                         else k (z+z+1) (2.*.zf+.1.)in
-          calc_floor (x/.2.) k_ in
-      let rec id x y = x in
-      calc_floor x id
+          let (zi,zf) = calc_floor (x/.2.) in
+          let zf2=zf+.zf in
+          if (if x<zf2 then zf2-.x else x-.zf2) < 1. then ((zi+zi),zf2)
+          else ((zi+zi+1),(zf2+.1.)) in
+  if x<0. then
+    if x<= -.2147483648. then 0
+    else let (i,_)=calc_floor (-.x) in -i 
+  else
+    if x>=2147483648. then 0
+    else
+      let(i,_)=calc_floor x in i 
     in
     
-let rec main min max acc step =
-  if min>=max then print_char 47
-  else
-    let x = myftoi acc in
-    if int_of_float acc = x then main (min+1) max (acc+.step) step
-    else (print_float acc;print_char 32 ;print_int x) 
+let rec main min acc =
+  if min>=20000 then ()
+  else if int_of_float acc = myftoi acc then main (min+1) (acc+.0.01)
+  else ()
 in
-main 0 20000 (-100.0) 0.01
+main 0 (-100.)
 
