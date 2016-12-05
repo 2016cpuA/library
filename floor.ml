@@ -24,7 +24,7 @@ let rec myfloor x =
         else
           let result = calc_floor (x/.2.) in
           let dbl= result+.result in
-          if (if x<dbl then dbl-.x else x-.dbl) < 1. then dbl
+          if (if x<dbl then (dbl-.x) else (x-.dbl) ) <1. then dbl
           else (dbl+.1.) in
   if x<0. then
     if x<= -.16777216. then x

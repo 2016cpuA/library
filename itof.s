@@ -2,14 +2,8 @@
 _MASK_MANTI:	
 	.word	0x007fffff
 .text
-	.globl min_caml_print_newline
-min_caml_print_newline:	
-	addi	%r1,%r0,$10
-	out	%r1
-	jr 	%r31
-
-	.globl	min_caml_itof	
-min_caml_itof:
+	.globl	min_caml_float_of_int	
+min_caml_float_of_int:
 	beq	%r1,%r0,.itof_ret_zero
 	slt	%r2,%r1,%r0
 	beq	%r2,%r0,.itof_search_upper
@@ -87,7 +81,7 @@ min_caml_itof:
 	sll	%r2,%r2,31
 	or	%r1,%r2,%r1
 	sw	%r1,0(%r30)
-	lwc1	%f0,0(%r30)
+	lwc1	%f1,0(%r30)
 	jr	%r31
 .itof_ret_zero:
 	sub.s	%f1,%f1,%f1
