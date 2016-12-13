@@ -29,26 +29,34 @@ let rec floor x =
     if x>=16777216. then x
     else
       calc_floor x 
-    in  
-let arr_f = create_array 31 0. in
+in
 
-
+let arr_x = create_array 32 0. in
+let arr_f = create_array 32 0. in
 let rec int_of_float x =
-  let rec calc_floor x i=
-        if x<1. then (arr_f.(i)<-0.;0)
-        else
-          let zi = calc_floor (x/.2.) (i+1) in
-          let zf = arr_f.(i+1) in
-          let zf2=zf+.zf in
-          if (if x<zf2 then zf2-.x else x-.zf2) < 1. then (arr_f.(i)<-zf2;(zi+zi))
-          else (arr_f.(i)<-zf2+.1.;(zi+zi+1)) in
+  let rec set_arr_x x i arr_x arr_f =
+    if x<1. then (arr_x.(i)<-x;arr_f.(i+1)<-0.;i)
+    else
+      (arr_x.(i)<-x;
+       set_arr_x (x/.2.) (i+1) arr_x arr_f) in
+  let rec calc_floor n i arr_x arr_f=
+    if i<0 then n
+    else
+      let zf = arr_f.(i+1) in
+      let zf2=zf+.zf in
+      let x = arr_x.(i) in
+      if (if x<zf2 then zf2-.x else x-.zf2) < 1. then (arr_f.(i)<-zf2;calc_floor (n+n) (i-1) arr_x arr_f)
+      else (arr_f.(i)<-zf2+.1.;calc_floor (n+n+1) (i-1) arr_x arr_f) in
   if x<0. then
     if x<= -.2147483648. then 0
-    else -calc_floor (-.x) 0 
+    else
+      let n = set_arr_x (-.x) 0 arr_x arr_f in
+      -calc_floor 0 n arr_x arr_f
   else
     if x>=2147483648. then 0
     else
-      calc_floor x 0
+      let n = set_arr_x x 0 arr_x arr_f in
+      calc_floor 0 n arr_x arr_f
 in
 
 let rec sqrt x =
@@ -56,10 +64,10 @@ let rec sqrt x =
   else if x=0. then x
   else
     let rec calc_sqrt x acc =
-      let acc_ = 0.5*.(acc+.x/.acc) in
+      let acc_ = (acc+.x/.acc)/.2. in
       if acc_=acc then acc
       else calc_sqrt x acc_ in
-    calc_sqrt x (x*.0.5)
+    calc_sqrt x (x/.2.)
 in
 
 let rec mycos_step1 x =
@@ -106,12 +114,16 @@ let rec atan x =
       n
     else
       let n1=n+1 in
-      ev_error (err*.(float_of_int (n+n))/.(float_of_int (n+n+1))*.z) n1 (acc+.err) z in
+      let dbln = n+n in
+      let dblnf = float_of_int dbln in
+      ev_error (err*.dblnf/.(dblnf+.1.)*.z) n1 (acc+.err) z in
   let max = ev_error a0 1 0. z in
   let rec calc_atan a0 z acc n=
     if n=0 then acc
-    else 
-      let acc1 = acc*.(float_of_int (n+n))/.(float_of_int (n+n+1))*.z in
+    else
+      let dbln = n+n in
+      let dblnf = float_of_int dbln in
+      let acc1 = acc*.dblnf/.(dblnf+.1.)*.z in
       calc_atan a0 z (acc1+.a0) (n-1)
   in
   let mid =if flag then half_pi -. calc_atan a0 z a0 max else calc_atan a0 z a0 max in
@@ -136,29 +148,8 @@ let minus = 45 in
 let dot = 46 in
 let null = 0 in
 
-let space = ' ' in
-let vtab = '\t' in
-let lf = '\n' in
-let cr = '\r' in
-let zero = '0' in
-let one = '1' in
-let two = '2' in
-let three = '3' in
-let four = '4' in
-let five = '5' in
-let six = '6' in
-let seven = '7' in
-let eight = '8' in
-let nine = '9' in
-let minus = '-' in
-let dot = '.' in
-let eof = '\255' in
-let null = '\000' in
-let read_byte () = input_char stdin in
-
-
-let rec read_token () =
-  let buffer = Array.make 16 null in
+let rec read_token _ =
+  let buffer_rtoken = create_array 16 null in
   let rec make_token buffer i flag =
     let tmp = read_byte () in
     if tmp = space then
@@ -173,8 +164,8 @@ let rec read_token () =
     else
       (buffer.(i) <- tmp;
        make_token buffer (i+1) true) in
-  let len = make_token buffer 0 false in
-  (buffer,len+1) in
+  let len = make_token buffer_rtoken 0 false in
+  (buffer_rtoken,len+1) in
 
 let rec ten_times x =
   let dbl = x+x in
@@ -182,7 +173,7 @@ let rec ten_times x =
   let oct = quad+quad in
   dbl+oct in
 
-let rec read_int () =
+let rec read_int _ =
   let (token,len) = read_token () in
   let rec interpret token i len acc =
     if i < len then
@@ -203,7 +194,7 @@ let rec read_int () =
   if token.(0)=minus then -interpret token 1 len 0
   else interpret token 0 len 0 in
 
-let rec read_float () =
+let rec read_float _ =
   let (token,len) = read_token () in
   let rec interpret token i len acc adjust flag =
     if i < len then
@@ -225,4 +216,4 @@ let rec read_float () =
       acc in
   if token.(0)=minus then -.interpret token 1 len 0. 1. false
   else interpret token 0 len 0. 1. false in
-()
+
