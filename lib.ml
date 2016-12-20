@@ -1,6 +1,3 @@
-let pi = 3.14159265359 in
-let half_pi =1.5707963265 in
-
 let rec fiszero x = x = 0.0 in
 let rec fispos x = x > 0.0 in
 let rec fisneg x = (x<0.0) in
@@ -35,7 +32,7 @@ let arr_x = create_array 32 0. in
 let arr_f = create_array 32 0. in
 let rec int_of_float x =
   let rec set_arr_x x i arr_x arr_f =
-    if x<1. then (arr_x.(i)<-x;arr_f.(i+1)<-0.;i)
+    if x<1. then (arr_f.(i)<-0.;i)
     else
       (arr_x.(i)<-x;
        set_arr_x (x/.2.) (i+1) arr_x arr_f) in
@@ -51,12 +48,12 @@ let rec int_of_float x =
     if x<= -.2147483648. then 0
     else
       let n = set_arr_x (-.x) 0 arr_x arr_f in
-      -calc_floor 0 n arr_x arr_f
+      -calc_floor 0 (n-1) arr_x arr_f
   else
     if x>=2147483648. then 0
     else
       let n = set_arr_x x 0 arr_x arr_f in
-      calc_floor 0 n arr_x arr_f
+      calc_floor 0 (n-1) arr_x arr_f
 in
 
 let rec sqrt x =
@@ -100,7 +97,6 @@ let rec cos x =
 let rec sin x =
   if x<0. then -.mysin_step1 (-.x) else mysin_step1 x in
 
-
 let rec atan x =
   let sgn = x<0. in
   let x = if sgn then -.x else x in
@@ -126,41 +122,22 @@ let rec atan x =
       let acc1 = acc*.dblnf/.(dblnf+.1.)*.z in
       calc_atan a0 z (acc1+.a0) (n-1)
   in
-  let mid =if flag then half_pi -. calc_atan a0 z a0 max else calc_atan a0 z a0 max in
+  let mid =if flag then 1.5707963265 -. calc_atan a0 z a0 max else calc_atan a0 z a0 max in
   if sgn then -.mid else mid in
 
-let space = 32 in
-let vtab = 9 in
-let lf = 10 in
-let cr = 13 in
-let eof = 255 in
-let zero = 48 in
-let one = 49 in
-let two = 50 in
-let three = 51 in
-let four = 52 in
-let five = 53 in
-let six = 54 in
-let seven = 55 in
-let eight = 56 in
-let nine = 57 in
-let minus = 45 in
-let dot = 46 in
-let null = 0 in
-
 let rec read_token _ =
-  let buffer_rtoken = create_array 16 null in
+  let buffer_rtoken = create_array 16 0 in
   let rec make_token buffer i flag =
     let tmp = read_byte () in
-    if tmp = space then
+    if tmp = 32 then
       if flag then i else make_token buffer i false
-    else if tmp = vtab then
+    else if tmp = 9 then
       if flag then i else make_token buffer i false
-    else if tmp = lf then
+    else if tmp = 10 then
       if flag then i else make_token buffer i false
-    else if tmp = cr then
+    else if tmp = 13 then
       if flag then i else make_token buffer i false
-    else if tmp = eof then i
+    else if tmp = 255 then i
     else
       (buffer.(i) <- tmp;
        make_token buffer (i+1) true) in
@@ -178,20 +155,20 @@ let rec read_int _ =
   let rec interpret token i len acc =
     if i < len then
       let tmp = token.(i) in
-      if tmp=zero then interpret token (i+1) len (ten_times acc)
-      else if tmp=one then interpret token (i+1) len (1+ten_times acc)
-      else if tmp=two then interpret token (i+1) len (2+ten_times acc)
-      else if tmp=three then interpret token (i+1) len (3+ten_times acc)
-      else if tmp=four then interpret token (i+1) len (4+ten_times acc)
-      else if tmp=five then interpret token (i+1) len (5+ten_times acc)
-      else if tmp=six then interpret token (i+1) len (6+ten_times acc)
-      else if tmp=seven then interpret token (i+1) len (7+ten_times acc)
-      else if tmp=eight then interpret token (i+1) len (8+ten_times acc)
-      else if tmp=nine then interpret token (i+1) len (9+ten_times acc)
+      if tmp=48 then interpret token (i+1) len (ten_times acc)
+      else if tmp=49 then interpret token (i+1) len (1+ten_times acc)
+      else if tmp=50 then interpret token (i+1) len (2+ten_times acc)
+      else if tmp=51 then interpret token (i+1) len (3+ten_times acc)
+      else if tmp=52 then interpret token (i+1) len (4+ten_times acc)
+      else if tmp=53 then interpret token (i+1) len (5+ten_times acc)
+      else if tmp=54 then interpret token (i+1) len (6+ten_times acc)
+      else if tmp=55 then interpret token (i+1) len (7+ten_times acc)
+      else if tmp=56 then interpret token (i+1) len (8+ten_times acc)
+      else if tmp=57 then interpret token (i+1) len (9+ten_times acc)
       else acc
     else
       acc in
-  if token.(0)=minus then -interpret token 1 len 0
+  if token.(0)=45 then -interpret token 1 len 0
   else interpret token 0 len 0 in
 
 let rec read_float _ =
@@ -199,21 +176,21 @@ let rec read_float _ =
   let rec interpret token i len acc adjust flag =
     if i < len then
       let tmp = token.(i) in
-      if tmp=zero then
+      if tmp=48 then
         interpret token (i+1) len (10.*. acc) (if flag then adjust *. 10. else adjust) flag
-      else if tmp=one then interpret token (i+1) len (1.+.acc*.10.)  (if flag then adjust *. 10. else adjust) flag
-      else if tmp=two then interpret token (i+1) len (2.+.acc*.10.)  (if flag then adjust *. 10. else adjust) flag
-      else if tmp=three then interpret token (i+1) len (3.+.acc*.10.)  (if flag then adjust *. 10. else adjust) flag
-      else if tmp=four then interpret token (i+1) len (4.+.acc*.10.)  (if flag then adjust *. 10. else adjust) flag
-      else if tmp=five then interpret token (i+1) len (5.+.acc*.10.)  (if flag then adjust *. 10. else adjust) flag
-      else if tmp=six then interpret token (i+1) len (6.+.acc*.10.)  (if flag then adjust *. 10. else adjust) flag
-      else if tmp=seven then interpret token (i+1) len (7.+.acc*.10.)  (if flag then adjust *. 10. else adjust) flag
-      else if tmp=eight then interpret token (i+1) len (8.+.acc*.10.)  (if flag then adjust *. 10. else adjust) flag
-      else if tmp=nine then interpret token (i+1) len (9.+.acc*.10.)  (if flag then adjust *. 10. else adjust) flag
-      else if tmp=dot then interpret token (i+1) len acc adjust true
+      else if tmp=49 then interpret token (i+1) len (1.+.acc*.10.)  (if flag then adjust *. 10. else adjust) flag
+      else if tmp=50 then interpret token (i+1) len (2.+.acc*.10.)  (if flag then adjust *. 10. else adjust) flag
+      else if tmp=51 then interpret token (i+1) len (3.+.acc*.10.)  (if flag then adjust *. 10. else adjust) flag
+      else if tmp=52 then interpret token (i+1) len (4.+.acc*.10.)  (if flag then adjust *. 10. else adjust) flag
+      else if tmp=53 then interpret token (i+1) len (5.+.acc*.10.)  (if flag then adjust *. 10. else adjust) flag
+      else if tmp=54 then interpret token (i+1) len (6.+.acc*.10.)  (if flag then adjust *. 10. else adjust) flag
+      else if tmp=55 then interpret token (i+1) len (7.+.acc*.10.)  (if flag then adjust *. 10. else adjust) flag
+      else if tmp=56 then interpret token (i+1) len (8.+.acc*.10.)  (if flag then adjust *. 10. else adjust) flag
+      else if tmp=57 then interpret token (i+1) len (9.+.acc*.10.)  (if flag then adjust *. 10. else adjust) flag
+      else if tmp=46 then interpret token (i+1) len acc adjust true
       else acc /. adjust
     else
       acc in
-  if token.(0)=minus then -.interpret token 1 len 0. 1. false
+  if token.(0)=45 then -.interpret token 1 len 0. 1. false
   else interpret token 0 len 0. 1. false in
 
