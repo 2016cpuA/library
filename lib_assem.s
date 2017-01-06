@@ -4,14 +4,16 @@ min_caml_create_array:
 	slt	%r27,%r1,%r0
 	beq	%r27,%r0,2
 	jr	%r31
+	sll	%r1,%r1,2
 	move	%r29,%r28
 	add	%r28,%r28,%r1
+	srl	%r1,%r1,2
 	slt	%r27,%r0,%r1
 	beq	%r27,%r0,_create_array_exit
 	move	%r3,%r29
 _create_array_loop:
 	sw	%r2,0(%r3)
-	addi	%r3,%r3,1
+	addi	%r3,%r3,4
 	addi	%r1,%r1,-1
 	slt	%r27,%r0,%r1
 	bne	%r27,%r0,_create_array_loop
@@ -24,14 +26,16 @@ min_caml_create_float_array:
 	slt	%r27,%r1,%r0
 	beq	%r27,%r0,2
 	jr	%r31
+	sll	%r1,%r1,2
 	move	%r29,%r28
 	add	%r28,%r28,%r1
+	srl	%r1,%r1,2
 	slt	%r27,%r0,%r1
 	beq	%r27,%r0,_create_array_float_exit
 	move	%r2,%r29
 _create_array_float_loop:
 	swc1	%f1,0(%r2)
-	addi	%r2,%r2,1
+	addi	%r2,%r2,4
 	addi	%r1,%r1,-1
 	slt	%r27,%r0,%r1
 	bne	%r27,%r0,_create_array_float_loop
