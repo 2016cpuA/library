@@ -9,8 +9,8 @@ _BUF_READ:
 min_caml_read_byte:
 	la	%r2,_BUF_READ
 	lw	%r3,0(%r2)
-	lw	%r4,4(%r2)
-	lw	%r5,8(%r2)
+	lw	%r4,1(%r2)
+	lw	%r5,2(%r2)
 	bne	%r4,%r0,_read_byte_do
 	in	%r3
 	ori	%r4,%r0,255
@@ -28,6 +28,6 @@ _read_byte_loop:
 _read_byte_exit:
 	addi	%r5,%r5,-1
 	sw	%r3,0(%r2)
-	sw	%r4,4(%r2)
-	sw	%r5,8(%r2)
+	sw	%r4,1(%r2)
+	sw	%r5,2(%r2)
 	jr	%r31

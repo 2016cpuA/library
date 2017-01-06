@@ -8,7 +8,7 @@ _BUF:
 min_caml_print_char:
 	la	%r2,_BUF
 	lw	%r3,0(%r2)
-	lw	%r4,4(%r2)
+	lw	%r4,1(%r2)
 	sll	%r3,%r3,8
 	andi	%r1,%r1,255	#念の為マスク
 	or	%r3,%r1,%r3
@@ -17,23 +17,24 @@ min_caml_print_char:
 	beq	%r27,%r0,_print_char_flush_4
 	addi	%r4,%r4,1
 	sw	%r3,0(%r2)
-	sw	%r4,4(%r2)
+	sw	%r4,1(%r2)
 	jr	%r31
 _print_char_flush_4:
 	out	%r3
 	ori	%r4,%r0,0
 	ori	%r3,%r0,0
 	sw	%r3,0(%r2)
-	sw	%r4,4(%r2)
+	sw	%r4,1(%r2)
 	jr	%r31
 	.globl _print_char_flush
 _print_char_flush:	
 	la	%r2,_BUF
 	lw	%r3,0(%r2)
-	lw	%r4,4(%r2)
+	lw	%r4,1(%r2)
 	addi	%r5,%r0,3
 	beq	%r4,%r5,_print_char_flush_do
 	addi	%r5,%r5,1
+	jr	%r31
 _print_char_flush_loop:		#4バイトに足りない分の空白を詰める(今回はそれで一応問題ない
 	sll	%r3,%r3,8
 	ori	%r3,%r3,0x20
@@ -42,7 +43,7 @@ _print_char_flush_loop:		#4バイトに足りない分の空白を詰める(今�
 _print_char_flush_do:
 	out	%r3
 	sw	%r0,0(%r2)
-	sw	%r0,4(%r2)
+	sw	%r0,1(%r2)
 	jr	%r31
 div10:
 	move	%r3,%r1
@@ -204,7 +205,7 @@ min_caml_print_int:
 _print_int_init:
 	slt	%r27,%r1,%r0
 	sw	%r31,0(%r30)
-	addi	%r8,%r30,4
+	addi	%r8,%r30,1
 	slt	%r27,%r1,%r0
 	beq	%r27,%r0,_print_int_loop
 	sub	%r9,%r0,%r1
@@ -214,10 +215,10 @@ _print_int_init:
 _print_int_loop:
 	jal	div10
 	sw	%r2,0(%r8)
-	addi	%r8,%r8,4
+	addi	%r8,%r8,1
 	bne	%r1,%r0,_print_int_loop
 _print_int_out:
-	addi	%r8,%r8,-4
+	addi	%r8,%r8,-1
 	beq	%r8,%r30,_print_int_exit
 	lw	%r1,0(%r8)
 	addi	%r1,%r1,0x30
