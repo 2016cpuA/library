@@ -149,7 +149,7 @@ let rec ten_times x =
   let quad = dbl+dbl in
   let oct = quad+quad in
   dbl+oct in
-
+(*
 let rec read_int _ =
   let (token,len) = read_token () in
   let rec interpret token i len acc =
@@ -194,3 +194,4 @@ let rec read_float _ =
   if token.(0)=45 then -.interpret token 1 len 0. 1. false
   else interpret token 0 len 0. 1. false in
 
+ *)

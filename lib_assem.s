@@ -1,4 +1,91 @@
+.data
+_MASK_MANTI:	
+	.word	0x007fffff
 .text
+	.globl	min_caml_float_of_int	
+min_caml_float_of_int:
+	beq	%r1,%r0,.itof_ret_zero
+	slt	%r2,%r1,%r0
+	beq	%r2,%r0,.itof_search_upper
+	sub	%r1,%r0,%r1
+.itof_search_upper:
+	addi	%r3,%r0,0x7f
+	sll	%r3,%r3,24
+	and	%r3,%r1,%r3
+	beq	%r3,%r0,.itof_search_upper_l
+.itof_search_upper_g:
+	addi	%r3,%r0,1
+	sll	%r3,%r3,30
+	addi	%r4,%r0,0x80
+	addi	%r5,%r0,0x7f
+	addi	%r6,%r0,30
+.itof_loop1:
+	and	%r7,%r1,%r3
+	bne	%r7,%r0,.itof_calc_manti
+	srl	%r3,%r3,1
+	srl	%r4,%r4,1
+	srl	%r5,%r5,1
+	addi	%r6,%r6,-1
+	j	.itof_loop1
+.itof_calc_manti:
+	addi	%r7,%r6,-23
+	and	%r4,%r1,%r4
+	slt	%r4,%r0,%r4
+	and	%r5,%r1,%r5
+	slt	%r5,%r0,%r5
+.itof_loop2:
+	srl	%r1,%r1,1
+	addi	%r7,%r7,-1
+	slt	%r8,%r0,%r7
+	bne	%r8,%r0,.itof_loop2
+.itof_ret:
+	and	%r7,%r4,%r5
+	andi	%r8,%r1,1
+	or	%r7,%r8,%r7
+	add	%r1,%r1,%r7
+	addi	%r8,%r0,1
+	sll	%r8,%r8,24
+	and	%r8,%r1,%r8
+	beq	%r8,%r0,.itof_L1
+	srl	%r1,%r1,1
+	addi	%r6,%r6,1
+.itof_L1:
+	la	%r3,_MASK_MANTI
+	lw	%r3,0(%r3)
+	and	%r1,%r3,%r1
+	addi	%r6,%r6,127
+	andi	%r6,%r6,0xff
+	sll	%r6,%r6,23
+	sll	%r2,%r2,31
+	or	%r1,%r1,%r6
+	or	%r1,%r1,%r2
+	sw	%r1,0(%r30)
+	lwc1	%f0,0(%r30)
+	jr	%r31
+.itof_search_upper_l:
+	addi	%r3,%r0,1
+	sll	%r3,%r3,23
+	addi	%r4,%r0,150
+.itof_loop3:
+	and	%r5,%r3,%r1
+	bne	%r5,%r0,.itof_ret_l
+	sll	%r1,%r1,1
+	addi	%r4,%r4,-1
+	j	.itof_loop3
+.itof_ret_l:	
+	la	%r3,_MASK_MANTI
+	lw	%r3,0(%r3)
+	and	%r1,%r3,%r1
+	sll	%r4,%r4,23
+	or	%r1,%r4,%r1
+	sll	%r2,%r2,31
+	or	%r1,%r2,%r1
+	sw	%r1,0(%r30)
+	lwc1	%f1,0(%r30)
+	jr	%r31
+.itof_ret_zero:
+	sub.s	%f1,%f1,%f1
+	jr	%r31
 	.globl min_caml_create_array
 min_caml_create_array:
 	slt	%r27,%r1,%r0
@@ -299,4 +386,14 @@ _read_byte_exit:
 	sw	%r3,0(%r2)
 	sw	%r4,1(%r2)
 	sw	%r5,2(%r2)
+	jr	%r31
+	.globl	min_caml_read_int
+min_caml_read_int:
+	in	%r1
+	jr	%r31
+	.globl	min_caml_read_float
+min_caml_read_float:
+	in	%r29	
+	sw	%r29,0(%r30)
+	lwc1	%f1,0(%r30)
 	jr	%r31
