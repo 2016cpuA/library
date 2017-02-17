@@ -133,44 +133,7 @@ _BUF:
 .text
 	.globl min_caml_print_char
 min_caml_print_char:
-	la	%r2,_BUF
-	lw	%r3,0(%r2)
-	lw	%r4,1(%r2)
-	sll	%r3,%r3,8
-	andi	%r1,%r1,255	#念の為マスク
-	or	%r3,%r1,%r3
-	addi	%r27,%r0,3
-	slt	%r27,%r4,%r27
-	beq	%r27,%r0,_print_char_flush_4
-	addi	%r4,%r4,1
-	sw	%r3,0(%r2)
-	sw	%r4,1(%r2)
-	jr	%r31
-_print_char_flush_4:
-	out	%r3
-	ori	%r4,%r0,0
-	ori	%r3,%r0,0
-	sw	%r3,0(%r2)
-	sw	%r4,1(%r2)
-	jr	%r31
-	.globl _print_char_flush
-_print_char_flush:	
-	la	%r2,_BUF
-	lw	%r3,0(%r2)
-	lw	%r4,1(%r2)
-	addi	%r5,%r0,3
-	beq	%r4,%r5,_print_char_flush_do
-	addi	%r5,%r5,1
-	jr	%r31
-_print_char_flush_loop:		#4バイトに足りない分の空白を詰める(今回はそれで一応問題ない
-	sll	%r3,%r3,8
-	ori	%r3,%r3,0x20
-	addi	%r4,%r4,1
-	bne	%r4,%r5,_print_char_flush_loop
-_print_char_flush_do:
-	out	%r3
-	sw	%r0,0(%r2)
-	sw	%r0,1(%r2)
+	outb	%r1
 	jr	%r31
 div10:
 	move	%r3,%r1
@@ -349,7 +312,7 @@ _print_int_out:
 	beq	%r8,%r30,_print_int_exit
 	lw	%r1,0(%r8)
 	addi	%r1,%r1,0x30
-	jal	min_caml_print_char
+	outb	%r1
 	j	_print_int_out
 _print_int_exit:
 	lw	%r31,0(%r30)
